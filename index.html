@@ -1,1 +1,524 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#291642"><title>야, 너잖아! 친구 초대</title><link rel="stylesheet" href="./style.css"></head><body><main><div class="top"><div class="logo">🎭 야, <b>너</b>잖아!</div><div class="tag" id="tag">친구 초대 버전</div></div><div id="app"><div class="box">게임 준비 중…</div></div></main><script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js'"></script><script src="./questions.js"></script><script src="./app.js"></script></body></html>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#291642"><title>야, 너잖아! 친구 초대</title><style>
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#7139c1,#2e1a4b 55%,#170e28);color:white;font:15px system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif}main{max-width:480px;min-height:100dvh;margin:auto;padding:17px 16px 44px}.top{display:flex;align-items:center;justify-content:space-between;gap:7px}.logo{font-size:23px;font-weight:1000;letter-spacing:-1.3px}.logo b{color:#ffdf49}.tag{border:1px solid #ab86d4;border-radius:50px;padding:6px 9px;font-size:11px;background:#58367c;white-space:nowrap}.hero{text-align:center;padding:22px 0 10px}.hero .em{font-size:60px;letter-spacing:-9px}.hero h1{font-size:37px;color:#ffdf49;text-shadow:3px 4px #2d1342;margin:10px 0}.sub{font-size:13px;color:#e4d2fa;line-height:1.65}.box{background:#422962;border:1px solid #9975c3;border-radius:18px;padding:16px;margin:13px 0}h2{font-size:21px;margin:11px 0 14px}.label{display:block;font-size:12px;font-weight:850;color:#e6d3fa;margin:11px 0 7px}input,select,textarea{font:16px system-ui;width:100%;background:white;color:#29163e;border:2px solid #b99fda;border-radius:12px;padding:12px}input[readonly]{background:#f9f1ff}textarea{min-height:100px;resize:vertical}.btn{display:block;width:100%;border:0;border-radius:14px;background:#ffdd49;color:#2c183f;font-size:15px;font-weight:950;padding:14px 10px;margin:10px 0;box-shadow:0 4px #b08019;cursor:pointer}.btn.alt{background:#42e5c2;box-shadow:0 4px #1e8e78}.btn.ghost{background:#573979;color:white;border:1px solid #9d7ac5;box-shadow:none}.btn:disabled{opacity:.45;cursor:not-allowed}.note{border:1px solid #9672be;border-radius:12px;background:#4b316c;padding:12px;font-size:12px;color:#e4d5f7;line-height:1.65;margin:12px 0}.toast{border:1px solid #ffca61;background:#704d32;color:#fff8d3;border-radius:12px;padding:12px;font-size:13px;font-weight:750;margin:12px 0;line-height:1.5}.paper{background:#fff9ff;color:#2c183e;border-radius:17px;padding:18px;text-align:center;margin:14px 0}.paper strong{font-size:20px;line-height:1.5}.paper p{font-size:12px;color:#765c8a}.code{font-size:45px;font-weight:1000;color:#ffdf49;letter-spacing:4px;text-align:center}.help{background:#322049;border-radius:12px;padding:12px;font-size:12px;line-height:1.7;color:#f2e5ff}.help b{color:#ffdf49}.people{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.person{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;min-height:82px;border:2px solid #9978bd;border-radius:13px;background:#56397b;color:white;font-size:12px;font-weight:850;padding:8px 3px}.person i{font-style:normal;font-size:29px}.person.sel,.choice.sel{background:#7954aa;border-color:#ffdf49}.person:disabled{opacity:.5}.choice{width:100%;border:2px solid #9473bd;background:#563a7c;color:white;border-radius:13px;padding:14px;text-align:left;margin:7px 0;font-size:14px;font-weight:850}.pill{display:inline-block;background:#60428d;border-radius:30px;padding:7px 10px;font-size:12px;font-weight:900}.time{float:right;font-size:20px;font-weight:950;color:#ffdf49}.progress{height:8px;background:#4e346e;border-radius:10px;overflow:hidden;margin:13px 0}.progress div{height:100%;background:linear-gradient(90deg,#ff54b7,#ffdf49)}.score{display:flex;justify-content:space-between;gap:8px;background:#513674;border-radius:10px;padding:11px;margin:7px 0;font-size:14px}.score b{color:#ffdf49}.big{font-size:44px;font-weight:1000;color:#ffdf49}.center{text-align:center}
+
+</style></head><body><main><div class="top"><div class="logo">🎭 야, <b>너</b>잖아!</div><div class="tag" id="tag">친구 초대 버전</div></div><div id="app"><div class="box">게임 준비 중…</div></div></main><script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js'"></script><script>
+window.GAME_QUESTIONS = {
+  "vote": [
+    "단체 여행에서 지도 없이 길을 가장 잘 찾을 사람은?",
+    "무인도에 단 한 명만 데려갈 수 있다면 누구?",
+    "갑자기 외계인이 찾아와도 침착하게 대화할 사람은?",
+    "하루 동안 유명인이 된다면 가장 자연스럽게 행동할 사람은?",
+    "우리 중 가장 비밀 요원처럼 행동할 사람은?",
+    "한밤중에 공포 영화를 보고도 잘 잘 사람은?",
+    "어릴 때 장난을 가장 많이 쳤을 것 같은 사람은?",
+    "편의점 신상품을 제일 먼저 발견할 사람은?",
+    "낯선 동네에서 친구를 가장 빨리 사귈 사람은?",
+    "친구 생일 서프라이즈를 가장 완벽하게 준비할 사람은?",
+    "버스에서 졸다가 종점까지 갈 가능성이 큰 사람은?",
+    "우리 중 가장 기상천외한 창업을 할 사람은?",
+    "갑자기 1분 연설을 시켜도 잘할 사람은?",
+    "반려동물과 대화를 한다면 제일 잘 통할 사람은?",
+    "게임 속 최종 보스가 되면 가장 무서울 사람은?",
+    "음식 사진을 가장 예술적으로 찍을 사람은?",
+    "모두가 포기한 퍼즐을 끝까지 풀 사람은?",
+    "노래방에서 무대를 콘서트로 만들 사람은?",
+    "친구의 작은 변화를 가장 빨리 알아챌 사람은?",
+    "타임머신을 타면 미래보다 과거를 먼저 탐험할 사람은?",
+    "새로운 유행어를 직접 만들어 퍼뜨릴 사람은?",
+    "모르는 사람에게 길을 물어보는 데 가장 용감한 사람은?",
+    "배달 음식 메뉴를 30분 넘게 고민할 사람은?",
+    "예능 프로그램에 출연하면 편집 분량이 가장 많을 사람은?",
+    "비밀 금고의 비밀번호를 가장 잘 기억할 사람은?",
+    "갑자기 비가 오면 우산 대신 기상천외한 방법을 찾을 사람은?",
+    "하루 만에 마술 한 가지를 완벽하게 배울 사람은?",
+    "학교 축제에서 사회를 보면 가장 잘할 사람은?",
+    "모두가 지쳤을 때 분위기를 살릴 사람은?",
+    "친구들 중 가장 먼저 우주여행을 신청할 사람은?",
+    "휴대폰 없이 일주일을 가장 잘 버틸 사람은?",
+    "유령의 집에서 오히려 유령을 놀라게 할 사람은?",
+    "친구들끼리 식당을 차리면 사장이 가장 어울리는 사람은?",
+    "미스터리 사건의 범인을 가장 빨리 추리할 사람은?",
+    "카메라 앞에서 즉흥 광고를 가장 잘 찍을 사람은?",
+    "친구가 힘들 때 가장 기발한 위로를 해줄 사람은?",
+    "드라마 악역을 맡아도 팬이 생길 사람은?",
+    "전국 맛집 지도를 만들면 가장 정확할 사람은?",
+    "단체 사진에서 혼자만 이상한 표정을 지을 사람은?",
+    "한 달 동안 새로운 취미를 가장 많이 만들 사람은?",
+    "로봇과 친구가 된다면 가장 먼저 친해질 사람은?",
+    "좀비 세상에서 안전한 은신처를 만들 사람은?",
+    "처음 보는 악기를 잡고도 리듬을 잘 탈 사람은?",
+    "친구들을 모아 깜짝 파티를 가장 크게 열 사람은?",
+    "만화 캐릭터로 태어나면 주인공일 것 같은 사람은?",
+    "어떤 게임이든 규칙을 가장 빨리 이해할 사람은?",
+    "보물지도를 발견하면 끝까지 추적할 사람은?",
+    "다 같이 요리하면 뜻밖의 신메뉴를 만들 사람은?",
+    "하루만 투명인간이 되면 가장 웃긴 일을 할 사람은?",
+    "친구들과 퀴즈쇼에 나가면 최후까지 살아남을 사람은?"
+  ],
+  "balance": [
+    [
+      "하루 동안 모든 생각이 자막으로 보이기",
+      "하루 동안 모든 말이 노래로 나오기"
+    ],
+    [
+      "평생 엘리베이터에서만 음악 나오기",
+      "평생 화장실에서만 박수 소리 나기"
+    ],
+    [
+      "하루에 한 번 10분간 투명해지기",
+      "하루에 한 번 10분간 날아다니기"
+    ],
+    [
+      "배달 음식은 평생 공짜지만 메뉴 랜덤",
+      "직접 요리하면 재료비 평생 공짜"
+    ],
+    [
+      "매일 1시간씩 미래를 보기",
+      "매일 1시간씩 과거를 다시 보기"
+    ],
+    [
+      "모든 동물과 대화하기",
+      "모든 외국어를 알아듣기"
+    ],
+    [
+      "노래방에서 언제나 100점 받기",
+      "사진 찍을 때마다 인생샷 나오기"
+    ],
+    [
+      "한여름에 겨울옷만 입기",
+      "한겨울에 여름옷만 입기"
+    ],
+    [
+      "평생 영화 결말 먼저 알기",
+      "평생 노래 후렴만 듣기"
+    ],
+    [
+      "하루 종일 속마음이 이모지로 표시되기",
+      "하루 종일 머리 위에 효과음 나오기"
+    ],
+    [
+      "일주일간 인터넷 없이 여행하기",
+      "일주일간 집 밖에 못 나가고 인터넷 하기"
+    ],
+    [
+      "내가 먹은 음식이 모두 사진으로 남기",
+      "내가 한 말이 모두 녹음되기"
+    ],
+    [
+      "마음대로 순간이동하되 하루 1회",
+      "마음대로 변신하되 하루 1회"
+    ],
+    [
+      "매일 5분 일찍 일어나기",
+      "매일 5분 늦게 잠들기"
+    ],
+    [
+      "하루 동안 몸이 솜사탕처럼 가벼워지기",
+      "하루 동안 손끝에서 반짝이 나오기"
+    ],
+    [
+      "친구와 하루 동안 몸 바꾸기",
+      "친구와 하루 동안 목소리 바꾸기"
+    ],
+    [
+      "10년 뒤 나에게 질문 1개 하기",
+      "10년 전 나에게 조언 1개 하기"
+    ],
+    [
+      "평생 치킨은 소스 없이 먹기",
+      "평생 피자는 치즈 없이 먹기"
+    ],
+    [
+      "모든 게임에서 운이 좋아지기",
+      "모든 시험에서 기억력이 좋아지기"
+    ],
+    [
+      "매주 새로운 취미 하나 무료로 배우기",
+      "매주 새로운 도시 하나 무료로 가기"
+    ],
+    [
+      "휴대폰 배터리 항상 100%",
+      "와이파이 어디서든 최고 속도"
+    ],
+    [
+      "꿈에서 원하는 장소 여행하기",
+      "잠들면 원하는 영화 속으로 들어가기"
+    ],
+    [
+      "모든 길에서 신호등 초록불",
+      "모든 줄에서 항상 첫 번째"
+    ],
+    [
+      "한 달 동안 1인 방송하기",
+      "한 달 동안 뮤지컬 배우로 살기"
+    ],
+    [
+      "집에 작은 용 한 마리 키우기",
+      "집에 말하는 고양이 한 마리 키우기"
+    ],
+    [
+      "일주일 동안 이름 대신 별명으로 불리기",
+      "일주일 동안 목소리에 에코 효과 생기기"
+    ],
+    [
+      "친구가 만든 요리만 먹기",
+      "내가 만든 요리만 먹기"
+    ],
+    [
+      "평생 매일 다른 신발 신기",
+      "평생 매일 다른 모자 쓰기"
+    ],
+    [
+      "우주 정거장에서 3일 살기",
+      "심해 기지에서 3일 살기"
+    ],
+    [
+      "가장 좋아하는 계절만 계속되기",
+      "매일 계절이 랜덤으로 바뀌기"
+    ],
+    [
+      "모든 사진에서 눈 감기",
+      "모든 영상에서 하품하기"
+    ],
+    [
+      "아침마다 30초 춤춰야 문 열리기",
+      "저녁마다 30초 노래해야 불 켜지기"
+    ],
+    [
+      "거짓말하면 머리에 별이 뜨기",
+      "칭찬하면 주변에 꽃이 피기"
+    ],
+    [
+      "매번 식당에서 메뉴를 친구가 정하기",
+      "매번 영화에서 작품을 친구가 정하기"
+    ],
+    [
+      "인생의 BGM을 직접 고르기",
+      "인생의 효과음을 직접 고르기"
+    ],
+    [
+      "하루 1번 모든 물건 위치 찾기",
+      "하루 1번 모든 사람 이름 기억하기"
+    ],
+    [
+      "평생 라면 면발 길이가 1미터",
+      "평생 아이스크림이 절대 안 녹기"
+    ],
+    [
+      "친구들 중 한 명과 텔레파시",
+      "동물 한 종류와 텔레파시"
+    ],
+    [
+      "비 오는 날마다 무지개 보기",
+      "눈 오는 날마다 오로라 보기"
+    ],
+    [
+      "하루에 한 번 시간을 1분 멈추기",
+      "하루에 한 번 시간을 1분 되감기"
+    ]
+  ],
+  "bomb": [
+    "30초 안에 빨간색 물건 3개를 적어봐!",
+    "영화 속 주인공 이름 3개를 적어봐!",
+    "우리나라 길거리 음식 3개를 적어봐!",
+    "바다에서 볼 수 있는 생물 3개를 적어봐!",
+    "비 오는 날 필요한 물건 3개를 적어봐!",
+    "운동 종목 3개를 적어봐!",
+    "편의점에서 살 수 있는 간식 3개를 적어봐!",
+    "동물원에서 볼 법한 동물 3개를 적어봐!",
+    "캠핑할 때 가져갈 물건 3개를 적어봐!",
+    "학교에서 볼 수 있는 물건 3개를 적어봐!",
+    "냉장고 안에 있을 법한 음식 3개를 적어봐!",
+    "여행지에서 할 수 있는 활동 3개를 적어봐!",
+    "노래방에서 자주 듣는 장르 3개를 적어봐!",
+    "보드게임 이름 3개를 적어봐!",
+    "겨울에 생각나는 단어 3개를 적어봐!",
+    "하늘에서 볼 수 있는 것 3개를 적어봐!",
+    "생일 파티에 필요한 것 3개를 적어봐!",
+    "축제에서 들을 수 있는 소리 3개를 적어봐!",
+    "미래에 나올 법한 발명품 3개를 적어봐!",
+    "초능력 이름 3개를 적어봐!",
+    "라면에 넣을 수 있는 재료 3개를 적어봐!",
+    "우주에서 볼 법한 것 3개를 적어봐!",
+    "공포 영화에 나올 법한 소품 3개를 적어봐!",
+    "친구와 놀 때 할 수 있는 게임 3개를 적어봐!",
+    "동화에 등장하는 직업 3개를 적어봐!",
+    "아침에 하는 행동 3개를 적어봐!",
+    "기차역에서 볼 수 있는 것 3개를 적어봐!",
+    "파란색 물건 3개를 적어봐!",
+    "여름에 먹기 좋은 음식 3개를 적어봐!",
+    "마법사가 들고 다닐 법한 물건 3개를 적어봐!"
+  ],
+  "confession": [
+    "혼자 있을 때 갑자기 춤을 춘 적이 있어.",
+    "셀카를 찍다가 마음에 안 들어 수십 장을 지웠어.",
+    "새벽에 갑자기 방 정리를 시작한 적이 있어.",
+    "친구에게 보낼 메시지를 다섯 번 이상 고쳐 썼어.",
+    "음식이 나오자마자 사진부터 찍은 적이 있어.",
+    "이어폰을 낀 채 노래를 따라 부르다가 들킨 적이 있어.",
+    "알람을 다섯 개 넘게 맞춰본 적이 있어.",
+    "거울 앞에서 시상식 수상 소감을 연습한 적이 있어.",
+    "드라마를 보다가 혼자 등장인물에게 말을 건 적이 있어.",
+    "배달 앱에서 메뉴만 보다가 아무것도 주문하지 않은 적이 있어.",
+    "운동하러 나갔다가 간식만 사 온 적이 있어.",
+    "친구의 별명을 혼자 몰래 만들어본 적이 있어.",
+    "처음 보는 사람을 아는 사람으로 착각하고 인사한 적이 있어.",
+    "게임에서 지고도 일부러 봐준 척한 적이 있어.",
+    "지하철에서 내려야 할 역을 놓친 적이 있어.",
+    "공부하려고 책상에 앉았다가 낙서만 한 적이 있어.",
+    "노래방에서 모르는 노래를 아는 척 부른 적이 있어.",
+    "방금 들은 말을 못 들어서 세 번 물어본 적이 있어.",
+    "영화 스포일러를 피하려고 인터넷을 끊어본 적이 있어.",
+    "선물 포장을 뜯기 아까워 오래 보관한 적이 있어.",
+    "편의점에서 계산하려다가 지갑을 안 가져온 걸 깨달았어.",
+    "온라인 쇼핑 장바구니에 물건만 잔뜩 담아뒀어.",
+    "카메라가 켜진 줄 모르고 엉뚱한 표정을 지었어.",
+    "새로 산 옷을 입고 혼자 패션쇼를 했어.",
+    "비밀 일기를 쓰다가 며칠 만에 포기했어.",
+    "좋아하는 음식은 마지막 한 입까지 아껴 먹어.",
+    "낯선 강아지에게 진지하게 인사한 적이 있어.",
+    "길을 잃었는데 괜찮은 척 계속 걸어간 적이 있어.",
+    "생일 축하 노래를 혼자 연습해본 적이 있어.",
+    "내 이름을 잘못 부르는 사람에게 그냥 대답한 적이 있어."
+  ],
+  "news": [
+    [
+      "펭귄",
+      "피자",
+      "지하철"
+    ],
+    [
+      "로봇",
+      "김밥",
+      "운동장"
+    ],
+    [
+      "용",
+      "아이스크림",
+      "놀이공원"
+    ],
+    [
+      "고양이",
+      "왕관",
+      "도서관"
+    ],
+    [
+      "외계인",
+      "떡볶이",
+      "엘리베이터"
+    ],
+    [
+      "해적",
+      "스마트폰",
+      "마트"
+    ],
+    [
+      "판다",
+      "우주선",
+      "카페"
+    ],
+    [
+      "마법사",
+      "라면",
+      "학교"
+    ],
+    [
+      "유령",
+      "택배",
+      "편의점"
+    ],
+    [
+      "공룡",
+      "마이크",
+      "수영장"
+    ],
+    [
+      "강아지",
+      "금메달",
+      "버스"
+    ],
+    [
+      "문어",
+      "선글라스",
+      "은행"
+    ],
+    [
+      "토끼",
+      "드론",
+      "공항"
+    ],
+    [
+      "사자",
+      "수박",
+      "극장"
+    ],
+    [
+      "닌자",
+      "풍선",
+      "백화점"
+    ],
+    [
+      "코알라",
+      "기타",
+      "해변"
+    ],
+    [
+      "거북이",
+      "롤러스케이트",
+      "박물관"
+    ],
+    [
+      "기린",
+      "팝콘",
+      "체육관"
+    ],
+    [
+      "여우",
+      "로또",
+      "기차역"
+    ],
+    [
+      "햄스터",
+      "헬멧",
+      "야구장"
+    ],
+    [
+      "코끼리",
+      "치킨",
+      "미용실"
+    ],
+    [
+      "우주인",
+      "도넛",
+      "시장"
+    ],
+    [
+      "독수리",
+      "댄스",
+      "옥상"
+    ],
+    [
+      "달팽이",
+      "스케이트보드",
+      "지하상가"
+    ],
+    [
+      "인어",
+      "노트북",
+      "서점"
+    ],
+    [
+      "오리",
+      "트로피",
+      "찜질방"
+    ],
+    [
+      "캥거루",
+      "붕어빵",
+      "방송국"
+    ],
+    [
+      "개구리",
+      "보물지도",
+      "산책로"
+    ],
+    [
+      "늑대",
+      "카메라",
+      "캠핑장"
+    ],
+    [
+      "알파카",
+      "햄버거",
+      "미술관"
+    ]
+  ]
+};
+
+</script><script>
+(function(){
+'use strict';
+const root=document.getElementById('app'),tag=document.getElementById('tag');
+const icons=['🦊','🐰','🐱','🐼','🐻','🐸','🐹','🐯','🐵','🐧','🦁','🐨','🐶','🦄','🐲','🦖','🐙','🦋','🐷','🐮'];
+const fakeNames=['민수','지훈','서연','하린','준호','도윤','유진','수빈','태호','나연'];
+const bank=window.GAME_QUESTIONS;
+const kinds=['vote','balance','bomb','confession','news'];
+const kindNames={vote:'👀 친구 지목전',balance:'⚖️ 황당 밸런스',bomb:'💣 순발력 폭탄',confession:'🕵️ 비밀 고백 추리',news:'📺 속보! 황당 뉴스'};
+let roomParam=(new URLSearchParams(location.search).get('room')||'').replace(/\D/g,'').slice(0,6);
+let nick='';try{nick=localStorage.getItem('ynn_nick')||''}catch(e){}
+let code='',mode='home',host=false,practice=false,peer=null,conn=null,clients={},players=[],game={phase:'lobby',round:0,total:5};
+let used={},queue=[],lastKind='',pick='',draft='',notice='',token=0,help=false,localSubmitted=false;
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rnd=n=>Math.floor(Math.random()*n);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+function btn(t,a,d=false,cl=''){return '<button class="btn '+cl+'" data-act="'+a+'" '+(d?'disabled':'')+'>'+t+'</button>'}
+function player(id,n,i){return {id,name:String(n||'친구').slice(0,10),icon:icons[i%icons.length],score:0,online:true}}
+function myId(){return practice?'me':peer&&peer.id||''}
+function saveNick(v){nick=v;try{localStorage.setItem('ynn_nick',v)}catch(e){}}
+function say(s){notice=s;draw()}
+function sync(){if(!host)return;const m={type:'sync',players,game};Object.values(clients).forEach(c=>{if(c.open)try{c.send(m)}catch(e){}});draw()}
+function reset(){token++;if(peer)try{peer.destroy()}catch(e){}peer=null;conn=null;clients={};players=[];game={phase:'lobby',round:0,total:5};host=false;practice=false;code='';mode='home';pick='';draft='';notice='';help=false;localSubmitted=false;history.replaceState(null,'',location.pathname);draw()}
+function url(){return location.origin+location.pathname+'?room='+code}
+async function copyText(v){let ok=false;if(navigator.clipboard&&window.isSecureContext)try{await navigator.clipboard.writeText(v);ok=true}catch(e){}if(!ok){const x=document.createElement('textarea');x.value=v;x.style.cssText='position:fixed;left:-9999px';document.body.appendChild(x);x.focus();x.select();try{ok=document.execCommand('copy')}catch(e){}x.remove()}return ok}
+async function copyLink(){help=true;const ok=await copyText(url());say(ok?'초대 링크 복사 완료! 카카오톡 채팅방에 붙여넣어줘.':'자동 복사가 차단됐어. 아래 초대 주소를 길게 눌러 직접 복사해줘.')}
+async function share(){if(navigator.share)try{await navigator.share({title:'야, 너잖아! 친구방',text:'친구방 코드 '+code,url:url()});return}catch(e){if(e.name==='AbortError')return}await copyLink()}
+function create(){if(!window.Peer){say('연결 프로그램을 불러오지 못했어. Chrome 또는 Safari에서 열어줘.');return}
+ saveNick((document.getElementById('nick').value||'방장').trim().slice(0,10)||'방장');const total=Number(document.getElementById('total').value)||5;code=String(100000+rnd(900000));mode='connecting';host=true;practice=false;notice='';help=false;const t=++token;peer=new Peer('ynn-party-'+code);
+ peer.on('open',()=>{if(t!==token)return;players=[player(peer.id,nick,0)];game={phase:'lobby',round:0,total};mode='room';history.replaceState(null,'',location.pathname+'?room='+code);draw()});
+ peer.on('connection',c=>{c.on('data',m=>{if(!m||typeof m!=='object')return;if(m.type==='join'){if(game.phase!=='lobby'||players.length>=20){c.send({type:'reject',reason:game.phase!=='lobby'?'이미 시작한 게임이야.':'방이 가득 찼어.'});return}if(!players.some(p=>p.id===c.peer)){clients[c.peer]=c;players.push(player(c.peer,m.name,players.length))}sync()}else if(m.type==='answer')accept(c.peer,m.value,m.round)});
+ c.on('close',()=>{delete clients[c.peer];const p=players.find(x=>x.id===c.peer);if(p){if(game.phase==='lobby')players=players.filter(x=>x.id!==c.peer);else p.online=false;sync()}});c.on('error',()=>{})});
+ peer.on('error',e=>say(e.type==='unavailable-id'?'방 코드가 겹쳤어. 다시 방을 만들어줘.':'연결 오류: '+(e.message||e.type)));draw()}
+function join(){if(!window.Peer){say('연결 프로그램을 불러오지 못했어. Chrome 또는 Safari에서 열어줘.');return}const c=(document.getElementById('joinCode').value||roomParam).replace(/\D/g,'');if(c.length!==6){say('6자리 방 코드를 입력해줘.');return}
+ saveNick((document.getElementById('nick').value||'친구').trim().slice(0,10)||'친구');code=c;mode='connecting';host=false;practice=false;notice='';const t=++token;peer=new Peer();
+ peer.on('open',()=>{if(t!==token)return;conn=peer.connect('ynn-party-'+code,{serialization:'json',reliable:true});conn.on('open',()=>{conn.send({type:'join',name:nick});say('방장에게 참가 요청을 보냈어…')});conn.on('data',m=>{if(!m||typeof m!=='object')return;if(m.type==='reject'){say(m.reason);return}if(m.type==='sync'){players=m.players;const old=game.phase+'|'+game.round;game=m.game;if(old!==game.phase+'|'+game.round){pick='';draft='';localSubmitted=false}mode='room';notice='';history.replaceState(null,'',location.pathname+'?room='+code);draw()}});conn.on('close',()=>say('방장과 연결이 끊겼어. 다시 입장해줘.'));conn.on('error',e=>say('연결 실패: '+(e.message||'네트워크 오류')))});
+ peer.on('error',e=>say(e.type==='peer-unavailable'?'방장을 찾지 못했어. 방 코드와 방장 접속 상태를 확인해줘.':'연결 오류: '+(e.message||e.type)));setTimeout(()=>{if(t===token&&mode==='connecting')say('연결이 지연돼. 방장에게 게임을 열어두라고 해줘.')},12000);draw()}
+function practiceStart(){saveNick((document.getElementById('nick').value||'나').trim().slice(0,10)||'나');practice=true;host=true;code='연습';mode='room';players=Array.from({length:6},(_,i)=>player(i?'bot'+i:'me',i?fakeNames[i-1]:nick,i));game={phase:'lobby',round:0,total:5};notice='가상 친구 연습방이야.';draw()}
+function scores(){return players.slice().sort((a,b)=>b.score-a.score).map((p,i)=>'<div class="score"><span>'+(i===0?'👑 ':'')+p.icon+' '+esc(p.name)+(p.online===false?' (연결 끊김)':'')+'</span><b>'+p.score+'점</b></div>').join('')}
+function draw(){tag.textContent=mode==='room'?(practice?'연습 모드':'방 '+code):'친구 초대 버전';let h=notice?'<div class="toast">'+esc(notice)+'</div>':'';
+ if(mode==='home')h+='<div class="hero"><div class="em">🦊💣🐹</div><h1>야, 너잖아!</h1><p class="sub">친구 <b>2~20명</b>, 각자 휴대폰으로 접속!<br>다양한 질문과 미션 · 답변 시간 30초</p></div><div class="box"><h2>🎉 친구들과 플레이</h2><label class="label">내 닉네임</label><input id="nick" maxlength="10" value="'+esc(nick)+'" placeholder="닉네임 입력"><label class="label">게임 길이</label><select id="total"><option value="5">5라운드</option><option value="12">12라운드</option></select>'+btn('🏠 새 방 만들기','create',false,'alt')+'<label class="label">친구에게 받은 방 코드</label><input id="joinCode" inputmode="numeric" maxlength="6" value="'+esc(roomParam)+'" placeholder="6자리 방 코드">'+btn('🚪 친구 방 입장','join')+'</div>'+btn('🎮 가상 친구와 연습 시작','practice',false,'ghost')+'<div class="note">질문 180개가 중복 없이 나오고, 다 사용한 종류만 새 순서로 반복돼. 친구 접속은 WebRTC 방식이라 일부 통신망에서 연결이 제한될 수 있어.</div>';
+ else if(mode==='connecting')h+='<div class="hero"><div class="em">📡🎭📡</div><h2>친구방 연결 중…</h2><p class="sub">몇 초 걸릴 수 있어.</p></div>'+btn('처음으로 돌아가기','leave',false,'ghost');
+ else if(mode==='room'){
+  if(game.phase==='lobby'){h+='<div class="hero"><div class="em">🎉🦊🎉</div><h2>친구 대기실</h2><p class="sub">방장 포함 <b>2명부터</b> 시작 · 질문 제한 시간 <b>30초</b></p></div>';
+   if(!practice)h+='<div class="box"><div class="center sub">우리 방 코드</div><div class="code">'+code+'</div><label class="label">친구에게 보낼 초대 주소</label><input id="inviteLink" readonly value="'+esc(url())+'">'+btn('📤 휴대폰 공유 메뉴 열기','share',false,'alt')+btn('📋 초대 링크 복사','copyLink')+btn('🔢 6자리 방 코드 복사','copyCode',false,'ghost')+btn('❓ 카카오톡으로 초대하는 방법','help',false,'ghost')+(help?'<div class="help"><b>카카오톡 초대 방법</b><br>1. 초대 링크 복사 누르기<br>2. 카카오톡 채팅방 열기<br>3. 입력창 길게 누르고 붙여넣기 → 전송<br>4. 친구가 링크를 열고 닉네임 입력 후 방 입장<br>복사가 안 되면 위 주소를 길게 눌러 복사해줘.</div>':'')+'</div>';
+   h+='<h2>참가자 '+players.length+' / 20명</h2><div class="people">'+players.map((p,i)=>'<div class="person"><i>'+p.icon+'</i>'+esc(p.name)+(i===0?' 👑':'')+'</div>').join('')+'</div>';
+   h+=host?btn(players.length>=2?'🎬 게임 시작하기':'👥 친구 1명만 더 기다려줘','start',players.length<2):'<div class="note">방장이 시작하면 자동으로 게임 화면으로 넘어가!</div>';
+  }else if(game.phase==='question'){
+   const q=game.q,k=q.kind,answered=localSubmitted||Object.prototype.hasOwnProperty.call(game.answers||{},myId());
+   h+='<span class="pill">ROUND '+(game.round+1)+' / '+game.total+'</span><span class="time">⏱ <span id="timer">'+Math.max(0,Math.ceil((game.deadline-Date.now())/1000))+'</span>초</span><div class="progress"><div style="width:'+Math.round((game.round+1)/game.total*100)+'%"></div></div><h2>'+kindNames[k]+'</h2>';
+   if(k==='vote'||k==='confession')h+='<div class="paper"><strong>'+esc(q.text)+'</strong><p>'+(k==='vote'?'가장 어울리는 친구는?':'이 고백을 한 사람은 누구일까?')+'</p></div><div class="people">'+players.filter(p=>p.id!==myId()).map(p=>'<button class="person '+(pick===p.id?'sel':'')+'" data-act="pick" data-v="'+esc(p.id)+'" '+(answered?'disabled':'')+'><i>'+p.icon+'</i>'+esc(p.name)+'</button>').join('')+'</div>';
+   else if(k==='balance')h+='<div class="paper"><strong>둘 중 하나를 선택해!</strong></div>'+q.options.map((x,i)=>'<button class="choice '+(pick===String(i)?'sel':'')+'" data-act="pick" data-v="'+i+'" '+(answered?'disabled':'')+'>'+(i?'B. ':'A. ')+esc(x)+'</button>').join('');
+   else h+='<div class="paper"><strong>'+esc(k==='bomb'?q.text:q.options.join(' + '))+'</strong><p>'+(k==='bomb'?'서로 다른 답 3개를 쉼표로 구분해!':'키워드 2개 이상으로 황당한 뉴스 제목을 만들어!')+'</p></div><textarea id="answer" maxlength="140" '+(answered?'disabled':'')+' placeholder="'+(k==='bomb'?'예: 사과, 배, 바나나':'예: 펭귄이 지하철에서 피자 주문!')+'">'+esc(draft)+'</textarea>';
+   h+=answered?'<div class="note">✅ 제출 완료! 다른 친구들을 기다려줘.</div>':k==='confession'&&q.owner===myId()?'<div class="note">이번 고백의 주인공은 너야! 다른 친구들의 추리를 기다려줘.</div>':btn('✅ 답변 제출','answer',false,'alt');
+   h+='<p class="sub">제출 '+Object.keys(game.answers||{}).length+'명 · 제한 시간 30초</p>';if(host)h+=btn('방장: 결과 바로 공개','reveal',false,'ghost');
+  }else if(game.phase==='result'){const delta=(game.result.delta||{})[myId()]||0;h+='<div class="hero"><div class="em">🎉🏆🎉</div><h2>'+esc(game.result.title)+'</h2><p class="sub">'+esc(game.result.detail)+'</p><div class="big">'+(delta>=0?'+':'')+delta+'점</div></div><h2>📊 현재 순위</h2>'+scores()+'<div class="note">7초 뒤 자동으로 다음 라운드!</div>';if(host)h+=btn('방장: 다음 라운드','next',false,'ghost')}
+  else if(game.phase==='final'){const win=players.slice().sort((a,b)=>b.score-a.score)[0];h+='<div class="hero"><div class="em">🎊🏆🎊</div><h2>최종 시상식</h2><div style="font-size:66px">'+win.icon+'</div><h1>'+esc(win.name)+'</h1><p class="sub">'+win.score+'점으로 우승!</p></div>'+scores();if(host)h+=btn('🔄 다시 하기','restart')}
+  h+=btn('방 나가기','leave',false,'ghost');
+ }
+ root.innerHTML=h;
+}
+function loadUsed(){try{const o=JSON.parse(localStorage.getItem('ynn_used_questions_v4')||'{}');used=o&&typeof o==='object'?o:{}}catch(e){used={}}}
+function saveUsed(){try{localStorage.setItem('ynn_used_questions_v4',JSON.stringify(used))}catch(e){}}
+function nextKind(){if(!queue.length){queue=shuffle(kinds.slice());if(queue[0]===lastKind&&queue.length>1)[queue[0],queue[1]]=[queue[1],queue[0]]}lastKind=queue.shift();return lastKind}
+function takeQuestion(k){let seen=Array.isArray(used[k])?used[k].filter(n=>Number.isInteger(n)&&n>=0&&n<bank[k].length):[];let remaining=bank[k].map((_,i)=>i).filter(i=>!seen.includes(i));if(!remaining.length){seen=[];remaining=bank[k].map((_,i)=>i)}const ix=remaining[rnd(remaining.length)];used[k]=seen.concat(ix);saveUsed();return bank[k][ix]}
+function newRound(){const k=nextKind(),item=takeQuestion(k);game.q={kind:k,text:typeof item==='string'?item:'',options:Array.isArray(item)?item:[],owner:k==='confession'?players[rnd(players.length)].id:''};game.phase='question';game.answers={};game.deadline=Date.now()+30000;pick='';draft='';localSubmitted=false;sync();if(practice)bots()}
+function start(){if(!host||players.length<2)return;loadUsed();queue=[];lastKind='';players.forEach(p=>p.score=0);game.round=0;newRound()}
+function accept(id,val,round){if(!host||game.phase!=='question'||round!==game.round||!players.some(p=>p.id===id&&p.online!==false)||Object.prototype.hasOwnProperty.call(game.answers,id))return;const k=game.q.kind;if(k==='confession'&&id===game.q.owner)return;if((k==='vote'||k==='confession')&&!players.some(p=>p.id===val&&p.id!==id))return;if(k==='balance'&&val!=='0'&&val!=='1')return;if((k==='bomb'||k==='news')&&(typeof val!=='string'||val.length>140))return;game.answers[id]=val;sync();const req=players.filter(p=>p.online!==false&&(k!=='confession'||p.id!==game.q.owner)).length;if(Object.keys(game.answers).length>=req)setTimeout(()=>{if(game.phase==='question')reveal()},450)}
+function bots(){if(!practice||game.phase!=='question')return;const q=game.q;players.slice(1).forEach(p=>{if(q.kind==='confession'&&p.id===q.owner)return;const v=q.kind==='vote'||q.kind==='confession'?players.filter(x=>x.id!==p.id)[rnd(players.length-1)].id:q.kind==='balance'?String(rnd(2)):q.kind==='bomb'?'사과, 배, 바나나':q.options.join(' ')+' 속보!';accept(p.id,v,game.round)})}
+function reveal(){if(!host||game.phase!=='question')return;const q=game.q,k=q.kind,ans=game.answers,delta={};let title='',detail='';players.forEach(p=>delta[p.id]=0);
+ if(k==='vote'){const c={};Object.values(ans).forEach(id=>c[id]=(c[id]||0)+1);const high=Math.max(0,...Object.values(c)),wins=Object.keys(c).filter(id=>c[id]===high&&high>0);Object.entries(ans).forEach(x=>{if(wins.includes(x[1]))delta[x[0]]+=2});title=wins.length?'👀 최다 지목: '+wins.map(id=>players.find(p=>p.id===id).name).join(', '):'👀 투표 결과';detail='최다 '+high+'표 · 맞힌 친구 +2점'}
+ if(k==='balance'){const a=Object.values(ans).filter(v=>v==='0').length,b=Object.values(ans).filter(v=>v==='1').length;Object.entries(ans).forEach(x=>{if(a===b)delta[x[0]]=1;else if((x[1]==='0'&&a<b)||(x[1]==='1'&&b<a))delta[x[0]]=3});title='⚖️ 소수파 결과';detail='A '+a+'명 · B '+b+'명'}
+ if(k==='bomb'){Object.entries(ans).forEach(x=>{const v=String(x[1]).split(/[,，\n]+/).map(s=>s.trim()).filter(Boolean);delta[x[0]]=new Set(v).size>=3?3:-2});title='💣 폭탄 미션 결과';detail='서로 다른 답 3개면 +3점'}
+ if(k==='confession'){Object.entries(ans).forEach(x=>{if(x[1]===q.owner)delta[x[0]]=3});title='🕵️ 정답: '+players.find(p=>p.id===q.owner).name;detail='맞힌 친구 +3점'}
+ if(k==='news'){Object.entries(ans).forEach(x=>{const v=String(x[1]);if(v.length>=10&&q.options.filter(w=>v.includes(w)).length>=2)delta[x[0]]=4});title='📺 뉴스 결과';detail='키워드 2개 + 10글자 이상이면 +4점'}
+ players.forEach(p=>p.score=Math.max(0,p.score+delta[p.id]));game.phase='result';game.result={title,detail,delta};game.deadline=Date.now()+7000;sync()}
+function next(){if(!host||game.phase!=='result')return;if(game.round+1>=game.total){game.phase='final';game.deadline=0;sync()}else{game.round++;newRound()}}
+root.addEventListener('input',e=>{if(e.target.id==='answer')draft=e.target.value});
+root.addEventListener('click',e=>{const b=e.target.closest('button[data-act]');if(!b||b.disabled)return;const a=b.dataset.act;
+ if(a==='create')create();else if(a==='join')join();else if(a==='practice')practiceStart();else if(a==='leave')reset();else if(a==='share')share();else if(a==='copyLink')copyLink();else if(a==='copyCode')copyText(code).then(ok=>say(ok?'방 코드 복사 완료!':'복사가 안 되면 화면의 6자리 코드를 알려줘.'));else if(a==='help'){help=!help;draw()}
+ else if(a==='start')start();else if(a==='pick'){pick=b.dataset.v;draw()}else if(a==='answer'){const k=game.q.kind,v=(k==='bomb'||k==='news')?document.getElementById('answer').value.trim():pick;if(!v){say('답을 선택하거나 입력해줘.');return}if(host)accept(myId(),v,game.round);else if(conn&&conn.open){conn.send({type:'answer',round:game.round,value:v});localSubmitted=true;say('답변을 보냈어. 결과를 기다려줘.')}else say('연결이 끊겼어. 다시 입장해줘.')}
+ else if(a==='reveal')reveal();else if(a==='next')next();else if(a==='restart'){game={phase:'lobby',round:0,total:game.total};players.forEach(p=>p.score=0);sync()}});
+setInterval(()=>{const t=document.getElementById('timer');if(t&&game.deadline)t.textContent=Math.max(0,Math.ceil((game.deadline-Date.now())/1000));if(host&&mode==='room'&&game.deadline&&Date.now()>=game.deadline){if(game.phase==='question')reveal();else if(game.phase==='result')next()}},1000);
+draw();
+})();
+
+</script></body></html>

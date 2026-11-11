@@ -463,7 +463,7 @@ let used={},queue=[],lastKind='',pick='',draft='',notice='',token=0,help=false,l
 // Local, optional Web Speech narration. No microphone or audio uploads.
 const speechAvailable=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
 const speechStore='ynn_voice_settings_v1';
-let speechConfig={enabled:true,voice:'female',rate:1};
+let speechConfig={enabled:true,voice:'female',rate:0.95};
 try{const saved=JSON.parse(localStorage.getItem(speechStore)||'null');if(saved&&typeof saved==='object'){
  if(typeof saved.enabled==='boolean')speechConfig.enabled=saved.enabled;
  if(['female','male','default'].includes(saved.voice))speechConfig.voice=saved.voice;
@@ -485,17 +485,17 @@ function chooseSpeechVoice(){
 function stopSpeech(){if(speechAvailable)try{window.speechSynthesis.cancel()}catch(e){}}
 function speak(text,force=false){
  if(!speechAvailable||(!speechConfig.enabled&&!force)||!speechActivated||!text)return;
- try{stopSpeech();const u=new SpeechSynthesisUtterance(String(text).slice(0,550));u.lang='ko-KR';u.rate=speechConfig.rate;u.pitch=speechConfig.voice==='female'?1.15:speechConfig.voice==='male'?.9:1;u.volume=1;
+ try{stopSpeech();const u=new SpeechSynthesisUtterance(String(text).slice(0,550));u.lang='ko-KR';u.rate=speechConfig.rate;u.pitch=speechConfig.voice==='female'?1.04:speechConfig.voice==='male'?.94:1;u.volume=1;
  const v=chooseSpeechVoice();if(v)u.voice=v;window.speechSynthesis.speak(u)}catch(e){console.warn('음성 재생 불가',e)}
 }
 function activateSpeech(){speechActivated=true;loadSpeechVoices()}
 function speechQuestion(){
  const q=game.q;if(!q)return '';
- let intro='자, '+(game.round+1)+'번째 라운드! '+(kindNames[q.kind]||'게임')+'. ';
- if(q.kind==='balance')return intro+'둘 중 하나를 선택하세요. 에이, '+(q.options?.[0]||'')+'. 비, '+(q.options?.[1]||'')+'.';
- if(q.kind==='news')return intro+'다음 단어를 사용해 황당한 뉴스 제목을 만들어 보세요. '+(q.options||[]).join(', ')+'.';
- if(q.kind==='bomb')return intro+(q.text||'')+'. 서로 다른 답 세 개를 입력하세요.';
- return intro+(q.text||'')+'. '+(q.kind==='confession'?'누가 이 고백을 했을까요?':'가장 어울리는 친구를 골라주세요.');
+ let intro='자, 이번에는 '+(game.round+1)+'번째 라운드예요. '+(kindNames[q.kind]||'게임')+'입니다. 잠깐 집중해 주세요. ';
+ if(q.kind==='balance')return intro+'두 가지 중에서 하나를 골라 볼까요? 첫 번째, '+(q.options?.[0]||'')+'. 그리고 두 번째, '+(q.options?.[1]||'')+'. 여러분의 선택은 무엇인가요?';
+ if(q.kind==='news')return intro+'이번에는 재치 있는 뉴스 제목을 만들어 볼게요. 사용할 단어는, '+(q.options||[]).join(', ')+'. 준비되셨죠?';
+ if(q.kind==='bomb')return intro+(q.text||'')+'. 서로 다른 답 세 개를 생각해 주세요.';
+ return intro+(q.text||'')+'. '+(q.kind==='confession'?'자, 이 고백의 주인공은 누구일까요?':'떠오르는 친구를 한 명 골라 주세요.');
 }
 function narrationOnDraw(){
  const phaseKey=mode==='room'?code+'|'+game.phase+'|'+game.round:'none';
@@ -504,10 +504,10 @@ function narrationOnDraw(){
  if(mode!=='room')return;
  if(game.phase==='lobby'){if(host&&players.length===1)speak('친구방이 만들어졌어요! 친구들을 초대해 주세요.');return}
  if(game.phase==='question'){warnedRound='';speak(speechQuestion());return}
- if(game.phase==='result'){speak('결과 발표! '+(game.result?.title||'')+'. '+(game.result?.detail||'')+'. 방장이 다음 라운드 진행 버튼을 누르면 계속합니다.');return}
+ if(game.phase==='result'){speak('자, 이제 결과를 확인해 볼까요? '+(game.result?.title||'')+'. '+(game.result?.detail||'')+'. 결과를 천천히 확인해 주세요. 준비가 되면 방장님이 다음 라운드 진행 버튼을 눌러 주세요.');return}
  if(game.phase==='final'){
  const winner=players.slice().sort((a,b)=>b.score-a.score)[0];
- if(winner)speak('대망의 최종 우승자는! '+winner.name+' 님! '+winner.score+'점으로 우승하셨습니다! 축하합니다!');
+ if(winner)speak('드디어 최종 결과가 나왔어요. 오늘의 우승자는, 바로 '+winner.name+' 님입니다! '+winner.score+'점으로 우승하셨어요. 정말 축하드려요!');
  }
 }
 function speechSettingsHtml(){
@@ -598,7 +598,7 @@ root.addEventListener('click',e=>{const b=e.target.closest('button[data-act]');i
  if(a==='create')create();else if(a==='join')join();else if(a==='practice')practiceStart();else if(a==='leave')reset();else if(a==='share')share();else if(a==='copyLink')copyLink();else if(a==='copyCode')copyText(code).then(ok=>say(ok?'방 코드 복사 완료!':'복사가 안 되면 화면의 6자리 코드를 알려줘.'));else if(a==='help'){help=!help;draw()}
  else if(a==='start')start();else if(a==='pick'){pick=b.dataset.v;draw()}else if(a==='answer'){const k=game.q.kind,v=(k==='bomb'||k==='news')?document.getElementById('answer').value.trim():pick;if(!v){say('답을 선택하거나 입력해줘.');return}if(host)accept(myId(),v,game.round);else if(conn&&conn.open){conn.send({type:'answer',round:game.round,value:v});localSubmitted=true;say('답변을 보냈어. 결과를 기다려줘.')}else say('연결이 끊겼어. 다시 입장해줘.')}
  else if(a==='reveal')reveal();else if(a==='next')next();else if(a==='restart'){game={phase:'lobby',round:0,total:game.total};players.forEach(p=>p.score=0);sync()}});
-setInterval(()=>{const t=document.getElementById('timer');if(t&&game.deadline){const left=Math.max(0,Math.ceil((game.deadline-Date.now())/1000));t.textContent=left;const roundKey=code+'|'+game.round;if(mode==='room'&&game.phase==='question'&&left<=10&&left>0&&warnedRound!==roundKey){warnedRound=roundKey;speak('십 초 남았습니다! 서둘러 주세요!')}}if(host&&mode==='room'&&game.deadline&&Date.now()>=game.deadline){if(game.phase==='question')reveal()}},1000);
+setInterval(()=>{const t=document.getElementById('timer');if(t&&game.deadline){const left=Math.max(0,Math.ceil((game.deadline-Date.now())/1000));t.textContent=left;const roundKey=code+'|'+game.round;if(mode==='room'&&game.phase==='question'&&left<=10&&left>0&&warnedRound!==roundKey){warnedRound=roundKey;speak('이제 열 초 남았어요. 아직 선택하지 않았다면, 서둘러 주세요!')}}if(host&&mode==='room'&&game.deadline&&Date.now()>=game.deadline){if(game.phase==='question')reveal()}},1000);
 draw();
 })();
 

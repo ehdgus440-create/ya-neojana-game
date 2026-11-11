@@ -462,7 +462,7 @@ let used={},queue=[],lastKind='',pick='',draft='',notice='',token=0,help=false,l
 
 // Local, optional Web Speech narration. No microphone or audio uploads.
 const speechAvailable=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
-const speechStore='ynn_voice_settings_v1';
+const speechStore='ynn_voice_settings_v2';
 let speechConfig={enabled:true,voice:'female',rate:0.95};
 try{const saved=JSON.parse(localStorage.getItem(speechStore)||'null');if(saved&&typeof saved==='object'){
  if(typeof saved.enabled==='boolean')speechConfig.enabled=saved.enabled;
@@ -513,7 +513,7 @@ function narrationOnDraw(){
 function speechSettingsHtml(){
  return '<section class="speech-panel" aria-label="음성 안내 설정"><div class="speech-heading"><strong>🎙️ 게임 음성 안내</strong><label><input type="checkbox" id="speechEnabled" '+(speechConfig.enabled?'checked':'')+' '+(!speechAvailable?'disabled':'')+'> 켜기</label></div>'+
  '<div class="speech-controls"><label>목소리 <select id="speechVoice" '+(!speechAvailable||!speechConfig.enabled?'disabled':'')+'><option value="female" '+(speechConfig.voice==='female'?'selected':'')+'>밝은 여성 MC</option><option value="male" '+(speechConfig.voice==='male'?'selected':'')+'>남성 MC</option><option value="default" '+(speechConfig.voice==='default'?'selected':'')+'>기본 한국어 음성</option></select></label>'+
- '<label>말하기 속도 <select id="speechRate" '+(!speechAvailable||!speechConfig.enabled?'disabled':'')+'>'+[.7,.8,.9,1,1.1,1.2,1.3,1.4].map(n=>'<option value="'+n+'" '+(Math.abs(speechConfig.rate-n)<.01?'selected':'')+'>'+n.toFixed(1)+'배</option>').join('')+'</select></label></div>'+
+ '<label>말하기 속도 <select id="speechRate" '+(!speechAvailable||!speechConfig.enabled?'disabled':'')+'>'+[.7,.8,.9,.95,1,1.1,1.2,1.3,1.4].map(n=>'<option value="'+n+'" '+(Math.abs(speechConfig.rate-n)<.01?'selected':'')+'>'+n.toFixed(n===.95?2:1)+'배</option>').join('')+'</select></label></div>'+
  '<button type="button" class="speech-preview" data-act="speechPreview" '+(!speechAvailable||!speechConfig.enabled?'disabled':'')+'>🔊 목소리 미리 듣기</button>'+
  '<p class="speech-hint">'+(speechAvailable?'질문 읽기 · 10초 경고 · 결과 · 우승 안내. 음성은 각 휴대폰에서 따로 설정해요.':'이 브라우저는 음성 합성을 지원하지 않아요. Chrome 또는 Safari를 사용해 주세요.')+'</p></section>';
 }

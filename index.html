@@ -527,6 +527,15 @@ function speechSettingsChange(e){
 
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rnd=n=>Math.floor(Math.random()*n);
+function randomRoomCode(){
+ // 4-digit room code, 1000-9999. Use secure randomness when supported.
+ if(window.crypto&&window.crypto.getRandomValues){
+  const sample=new Uint32Array(1),limit=Math.floor(4294967296/9000)*9000;
+  do{window.crypto.getRandomValues(sample)}while(sample[0]>=limit);
+  return String(1000+sample[0]%9000);
+ }
+ return String(1000+rnd(9000));
+}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
 function btn(t,a,d=false,cl=''){return '<button class="btn '+cl+'" data-act="'+a+'" '+(d?'disabled':'')+'>'+t+'</button>'}
 function player(id,n,i){return {id,name:String(n||'친구').slice(0,10),icon:icons[i%icons.length],score:0,online:true}}
@@ -540,8 +549,8 @@ async function copyText(v){let ok=false;if(navigator.clipboard&&window.isSecureC
 async function copyLink(){help=true;const ok=await copyText(url());say(ok?'초대 링크 복사 완료! 카카오톡 채팅방에 붙여넣어줘.':'자동 복사가 차단됐어. 아래 초대 주소를 길게 눌러 직접 복사해줘.')}
 async function share(){if(navigator.share)try{await navigator.share({title:'야, 너잖아! 친구방',text:'친구방 코드 '+code,url:url()});return}catch(e){if(e.name==='AbortError')return}await copyLink()}
 function create(){if(!window.Peer){say('연결 프로그램을 불러오지 못했어. Chrome 또는 Safari에서 열어줘.');return}
- saveNick((document.getElementById('nick').value||'방장').trim().slice(0,10)||'방장');const total=Number(document.getElementById('total').value)||5;mode='connecting';host=true;practice=false;notice='';help=false;const t=++token;let attempts=0;
- const tryRoom=()=>{if(t!==token)return;code=String(1000+rnd(9000));attempts++;const p=new Peer('ynn-party-'+code);peer=p;
+ saveNick((document.getElementById('nick').value||'방장').trim().slice(0,10)||'방장');const total=Number(document.getElementById('total').value)||5;mode='connecting';host=true;practice=false;notice='';help=false;const t=++token;let attempts=0;const triedCodes=new Set();
+ const tryRoom=()=>{if(t!==token)return;do{code=randomRoomCode()}while(triedCodes.has(code));triedCodes.add(code);attempts++;const p=new Peer('ynn-party-'+code);peer=p;
  p.on('open',()=>{if(t!==token||peer!==p)return;players=[player(peer.id,nick,0)];game={phase:'lobby',round:0,total};mode='room';history.replaceState(null,'',location.pathname+'?room='+code);draw()});
  p.on('connection',c=>{c.on('data',m=>{if(!m||typeof m!=='object')return;if(m.type==='join'){if(game.phase!=='lobby'||players.length>=20){c.send({type:'reject',reason:game.phase!=='lobby'?'이미 시작한 게임이야.':'방이 가득 찼어.'});return}if(!players.some(p=>p.id===c.peer)){clients[c.peer]=c;players.push(player(c.peer,m.name,players.length))}sync()}else if(m.type==='answer')accept(c.peer,m.value,m.round)});
  c.on('close',()=>{delete clients[c.peer];const p=players.find(x=>x.id===c.peer);if(p){if(game.phase==='lobby')players=players.filter(x=>x.id!==c.peer);else p.online=false;sync()}});c.on('error',()=>{})});
@@ -554,11 +563,11 @@ function join(){if(!window.Peer){say('연결 프로그램을 불러오지 못했
 function practiceStart(){saveNick((document.getElementById('nick').value||'나').trim().slice(0,10)||'나');practice=true;host=true;code='연습';mode='room';players=Array.from({length:6},(_,i)=>player(i?'bot'+i:'me',i?fakeNames[i-1]:nick,i));game={phase:'lobby',round:0,total:5};notice='가상 친구 연습방이야.';draw()}
 function scores(){return players.slice().sort((a,b)=>b.score-a.score).map((p,i)=>'<div class="score"><span>'+(i===0?'👑 ':'')+p.icon+' '+esc(p.name)+(p.online===false?' (연결 끊김)':'')+'</span><b>'+p.score+'점</b></div>').join('')}
 function draw(){tag.textContent=mode==='room'?(practice?'연습 모드':'방 '+code):'친구 초대 버전';let h=notice?'<div class="toast">'+esc(notice)+'</div>':'';
- if(mode==='home')h+='<div class="hero"><div class="em">🦊💣🐹</div><h1>야, 너잖아!</h1><p class="sub">친구 <b>2~20명</b>, 각자 휴대폰으로 접속!<br>다양한 질문과 미션 · 답변 시간 30초</p></div><div class="box"><h2>🎉 친구들과 플레이</h2><label class="label">내 닉네임</label><input id="nick" maxlength="10" value="'+esc(nick)+'" placeholder="닉네임 입력"><label class="label">게임 길이</label><select id="total"><option value="5">5라운드</option><option value="12">12라운드</option></select>'+btn('🏠 새 방 만들기','create',false,'alt')+'<label class="label">친구에게 받은 방 코드</label><input id="joinCode" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" value="'+esc(roomParam)+'" placeholder="4자리 방 코드">'+btn('🚪 친구 방 입장','join')+'</div>'+btn('🎮 가상 친구와 연습 시작','practice',false,'ghost')+'<div class="note">질문 180개가 중복 없이 나오고, 다 사용한 종류만 새 순서로 반복돼. 친구 접속은 WebRTC 방식이라 일부 통신망에서 연결이 제한될 수 있어.</div>';
+ if(mode==='home')h+='<div class="hero"><div class="em">🦊💣🐹</div><h1>야, 너잖아!</h1><p class="sub">친구 <b>2~20명</b>, 각자 휴대폰으로 접속!<br>다양한 질문과 미션 · 답변 시간 30초</p></div><div class="box"><h2>🎉 친구들과 플레이</h2><label class="label">내 닉네임</label><input id="nick" maxlength="10" value="'+esc(nick)+'" placeholder="닉네임 입력"><label class="label">게임 길이</label><select id="total"><option value="5">5라운드</option><option value="12">12라운드</option></select>'+btn('🏠 새 방 만들기','create',false,'alt')+'<label class="label">친구에게 받은 4자리 초대코드</label><input id="joinCode" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" value="'+esc(roomParam)+'" placeholder="4자리 방 코드">'+btn('🚪 친구 방 입장','join')+'</div>'+btn('🎮 가상 친구와 연습 시작','practice',false,'ghost')+'<div class="note">질문 180개가 중복 없이 나오고, 다 사용한 종류만 새 순서로 반복돼. 친구 접속은 WebRTC 방식이라 일부 통신망에서 연결이 제한될 수 있어.</div>';
  else if(mode==='connecting')h+='<div class="hero"><div class="em">📡🎭📡</div><h2>친구방 연결 중…</h2><p class="sub">몇 초 걸릴 수 있어.</p></div>'+btn('처음으로 돌아가기','leave',false,'ghost');
  else if(mode==='room'){
   if(game.phase==='lobby'){h+='<div class="hero"><div class="em">🎉🦊🎉</div><h2>친구 대기실</h2><p class="sub">방장 포함 <b>2명부터</b> 시작 · 질문 제한 시간 <b>30초</b></p></div>';
-   if(!practice)h+='<div class="box"><div class="center sub">우리 방 코드</div><div class="code">'+code+'</div><label class="label">친구에게 보낼 초대 주소</label><input id="inviteLink" readonly value="'+esc(url())+'">'+btn('📤 휴대폰 공유 메뉴 열기','share',false,'alt')+btn('📋 초대 링크 복사','copyLink')+btn('🔢 4자리 방 코드 복사','copyCode',false,'ghost')+btn('❓ 카카오톡으로 초대하는 방법','help',false,'ghost')+(help?'<div class="help"><b>카카오톡 초대 방법</b><br>1. 초대 링크 복사 누르기<br>2. 카카오톡 채팅방 열기<br>3. 입력창 길게 누르고 붙여넣기 → 전송<br>4. 친구가 링크를 열고 닉네임 입력 후 방 입장<br>복사가 안 되면 위 주소를 길게 눌러 복사해줘.</div>':'')+'</div>';
+   if(!practice)h+='<div class="box"><div class="center sub">우리 방 4자리 초대코드</div><div class="code">'+code+'</div><label class="label">친구에게 보낼 초대 주소</label><input id="inviteLink" readonly value="'+esc(url())+'">'+btn('📤 휴대폰 공유 메뉴 열기','share',false,'alt')+btn('📋 초대 링크 복사','copyLink')+btn('🔢 4자리 방 코드 복사','copyCode',false,'ghost')+btn('❓ 카카오톡으로 초대하는 방법','help',false,'ghost')+(help?'<div class="help"><b>카카오톡 초대 방법</b><br>1. 초대 링크 복사 누르기<br>2. 카카오톡 채팅방 열기<br>3. 입력창 길게 누르고 붙여넣기 → 전송<br>4. 친구가 링크를 열고 닉네임 입력 후 방 입장<br>복사가 안 되면 위 주소를 길게 눌러 복사해줘.</div>':'')+'</div>';
    h+='<h2>참가자 '+players.length+' / 20명</h2><div class="people">'+players.map((p,i)=>'<div class="person"><i>'+p.icon+'</i>'+esc(p.name)+(i===0?' 👑':'')+'</div>').join('')+'</div>';
    h+=host?btn(players.length>=2?'🎬 게임 시작하기':'👥 친구 1명만 더 기다려줘','start',players.length<2):'<div class="note">방장이 시작하면 자동으로 게임 화면으로 넘어가!</div>';
   }else if(game.phase==='question'){
